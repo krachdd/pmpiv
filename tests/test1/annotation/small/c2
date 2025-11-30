@@ -1,0 +1,55 @@
+{
+  "classes": [
+    {
+      "name": "c2",
+      "color": "#00ff00"
+    }
+  ],
+  "images": [
+    {
+      "file_name": "15-14-11.000-0001.png",
+      "width": 2560,
+      "height": 1916,
+      "is_multi_slice": false,
+      "annotations": {
+        "c2": [
+          {
+            "segmentation": [
+              2226,
+              1017,
+              2241,
+              1912,
+              2481,
+              1913,
+              2465,
+              1007,
+              2440,
+              1028,
+              2404,
+              1043,
+              2363,
+              1053,
+              2316,
+              1054,
+              2284,
+              1048,
+              2250,
+              1034,
+              2225,
+              1016
+            ],
+            "category_id": 1,
+            "category_name": "c2",
+            "number": 1
+          }
+        ]
+      }
+    }
+  ],
+  "image_paths": {
+    "15-14-11.000-0001.png": "/scratch/local2/krach/data/00_processing/pythonPIV/annotation_capillary/small/images/15-14-11.000-0001.png"
+  },
+  "notes": "",
+  "creation_date": "2025-03-24T16:34:43.261866",
+  "last_modified": "2025-03-24T16:34:43.261879"
+}

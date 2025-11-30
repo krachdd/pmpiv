@@ -1,0 +1,38 @@
+# Input file for pythonPIV
+#
+# Provide the path to this file to the python code
+# 
+# See https://github.tik.uni-stuttgart.de/DavidKrach/pmpiv/blob/main/README.md 
+# for information on parameters
+# 
+
+# data 
+IN_PATH /scratch/local1/data/PMPIV/2025_rivas_paper/20241031/1
+WORKING_DIR /scratch/local1/data/PMPIV/2025_rivas_paper/PMPIV_RESULTS/20241031_1
+IN_FORMAT tif
+PIXELSIZE 1.3e-06
+HEIGHT 190.0e-06
+
+# input data to use
+START_FRAME 0
+END_FRAME 0
+RATE 1
+
+# Dependend on the experiment/particles
+FEATURE_SIZE 7
+FEATURE_MIN_SIZE 150 
+FEATURES_ARE_DARK True
+FPS 70
+
+# Trial and error stuff ;) 
+MAX_PARTICLE_SPEED 11
+MEMORY 0
+DURATION 10
+REMOVE_STATIC True
+CHECK_STATIC 2
+STATIC_DEV_PARAMETER 0.05
+
+# Annotations 
+JSON_PATH /scratch/local1/data/PMPIV/2025_rivas_paper/PMPIV_RESULTS/20241031_1/annotations
+REMOVAL exclude.json, artifacts.json
+EXTRACTION 

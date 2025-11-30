@@ -3,16 +3,16 @@ import numpy as np
 from pims.base_frames import FramesSequence, FramesSequenceND
 from pims.frame import Frame
 
+# try:
+#     from skimage.io import imread
+# except ImportError:
 try:
-    from skimage.io import imread
+    from imageio import v2 as iio
 except ImportError:
-    try:
-        from imageio import v2 as iio
-    except ImportError:
-        import imageio as iio
+    import imageio as iio
 
-    def imread(*args, **kwargs):  # Strip metadata for consistency.
-        return np.asarray(iio.imread(*args, **kwargs))
+def imread(*args, **kwargs):  # Strip metadata for consistency.
+    return np.asarray(iio.imread(*args, **kwargs))
 
 
 class ImageReader(FramesSequence):

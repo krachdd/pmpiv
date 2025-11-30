@@ -1,0 +1,33 @@
+# Input file for pythonPIV
+#
+# Provide the path to this file to the python code
+
+# data 
+IN_PATH /absolute/path/to/input/data
+WORKING_DIR /absolute/path/to/result/directory
+IN_FORMAT tif
+PIXELSIZE 1.3e-06
+HEIGHT 100.0e-06
+
+# input data to use
+START_FRAME 0
+END_FRAME 100
+RATE 1
+
+# Dependend on the experiment/particles
+FEATURE_SIZE 11 
+FEATURE_MIN_SIZE 500 
+FEATURES_ARE_DARK True
+FPS 70
+
+# Trial and error stuff ;) 
+MAX_PARTICLE_SPEED 4
+MEMORY 6
+DURATION 5
+REMOVE_STATIC True
+CHECK_STATIC 50
+
+# Annotations 
+JSON_PATH /abs/path/annotations
+REMOVAL 
+EXTRACTION some.json, small_capillary.json

@@ -1,0 +1,63 @@
+{
+  "classes": [
+    {
+      "name": "c1",
+      "color": "#00ff00"
+    }
+  ],
+  "images": [
+    {
+      "file_name": "15-14-11.000-0001.png",
+      "width": 2560,
+      "height": 1916,
+      "is_multi_slice": false,
+      "annotations": {
+        "c1": [
+          {
+            "segmentation": [
+              1348,
+              1095,
+              1364,
+              1913,
+              1751,
+              1914,
+              1737,
+              1100,
+              1711,
+              1142,
+              1682,
+              1171,
+              1645,
+              1191,
+              1597,
+              1209,
+              1549,
+              1213,
+              1497,
+              1210,
+              1457,
+              1195,
+              1417,
+              1176,
+              1389,
+              1154,
+              1370,
+              1134,
+              1347,
+              1092
+            ],
+            "category_id": 1,
+            "category_name": "c1",
+            "number": 1
+          }
+        ]
+      }
+    }
+  ],
+  "image_paths": {
+    "15-14-11.000-0001.png": "/scratch/local2/krach/data/00_processing/pythonPIV/annotation_capillary/big/images/15-14-11.000-0001.png"
+  },
+  "notes": "",
+  "creation_date": "2025-03-24T16:33:20.261629",
+  "last_modified": "2025-03-24T16:33:20.261641"
+}
