@@ -78,7 +78,7 @@ An overview of the necessary `conda` packages for the annotation tool can be fou
 ## Features 
 
 #### Remove or Extract annotated regions
-This 
+List the `.json` files with annotations in the input file. 
 
 
 ## Acknowledgements
