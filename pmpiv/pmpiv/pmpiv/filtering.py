@@ -39,7 +39,7 @@ class Filtering:
         except:
             raise FileNotFoundError('Metadata information not available!')
 
-        self.vebose = m_verbose 
+        self.verbose = m_verbose
 
 
     
@@ -235,7 +235,7 @@ class Annotation_Filtering:
             print('json_type is COCO. Be aware that this is super slow!')
 
         if json_type == 'COCO':
-            my_df = self._premove()
+            raise NotImplementedError('COCO type removal is not implemented. Use COCO_range.')
         elif json_type == 'COCO_range':
             my_df = self._df_threshold_handler(m_type = 'remove', filter_df = filter_df)
 

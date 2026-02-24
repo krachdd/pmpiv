@@ -289,7 +289,11 @@ class Sequence_Statistics:
         for i in range(len(framelist)): framelist[i] = list(framelist[i])
 
         pool = multiprocessing.Pool(ncpus)
-        collected = pool.map(self._get, framelist)
+        try:
+            collected = pool.map(self._get, framelist)
+        finally:
+            pool.close()
+            pool.join()
 
         # Merge dicts
         coll_sq_data = {}
@@ -300,9 +304,6 @@ class Sequence_Statistics:
             for p in self.parameters:
                 m_method = getattr(self, m)
                 self.sq_stats[f'{m}_{p}'] = m_method(coll_sq_data[f'{m}_{p}'])
-
-        pool.close()
-        pool.join()
 
         self.computed = True
         

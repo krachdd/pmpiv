@@ -86,7 +86,6 @@ for s in range(len(md.EXTRACTION)):
 
 
     # Remove static trajectories--------------------------------------------------------------------
-    static_handler   = pmpiv.filtering.Static_Filtering(df_filter_static, m_metadata = md)
-    df_filter_static = static_handler.remove()
+    df_filter_static = pmpiv.filtering.filter_static(df_filter_static, m_metadata = md)
 
     pmpiv.df_io.write2csv(df_filter_static, md.WORKING_DIR, f'df_{key}_fstatic_short.csv')

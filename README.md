@@ -1,93 +1,183 @@
 # pmpiv
-A `python3` based **P**orous **M**edia **P**article **I**mage **V**elocimetry toolbox for microfluidic domains developed at [MIB](https://www.mib.uni-stuttgart.de/) and [Porous Media Lab](https://www.mib.uni-stuttgart.de/pml/). 
 
+A `python3`-based **P**orous **M**edia **P**article **I**mage **V**elocimetry toolbox for microfluidic domains, developed at [MIB](https://www.mib.uni-stuttgart.de/) and the [Porous Media Lab](https://www.mib.uni-stuttgart.de/pml/).
 
-This small and simple `python` module to provides tools to track [PIV](https://en.wikipedia.org/wiki/Particle_image_velocimetry) particles and evalute their properties. It is both, a wrapper and an extension of [`trackpy`](https://github.com/soft-matter/trackpy/tree/master) also using [`PIMS`](https://soft-matter.github.io/pims/v0.6.1/) (Python IMage Sequence) for convenience.
+`pmpiv` provides tools to track PIV particles and evaluate their properties inside porous microfluidic geometries. It wraps and extends [`trackpy`](https://github.com/soft-matter/trackpy) and [`PIMS`](https://soft-matter.github.io/pims/v0.6.1/) (Python IMage Sequence), and adds region-based filtering via COCO-format annotations.
+
+---
 
 ## Requirements
-Only tested on linux desktop computers. We use `python3` and [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main) to set up the virtual environments. Of course the python [`venv` module](https://docs.python.org/3/library/venv.html) is an equally suitable option. Requirements (for conda) are defined in the bash files in `envs`.
 
-The software is specially tailored to our devices and therefore cannot be reused directly without limitations. 
+Tested on Linux. Python 3.10+ is required. Dependencies are managed with [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main); the full environment specification is in `envs/pmpiv.yml`.
 
-Add the path to `PYTHONPATH` env variable by 
+**Create the environment:**
+```bash
+conda env create -f envs/pmpiv.yml
+conda activate pmpiv
+```
+
+**Add the package to `PYTHONPATH`** (required each session, or add to your shell profile):
 ```bash
 source addpythonpath.sh
 ```
 
+---
+
+## Project Structure
+
+```
+pmpiv/
+├── addpythonpath.sh          # Sets PYTHONPATH for pmpiv, pims, trackpy
+├── envs/
+│   └── pmpiv.yml             # Conda environment specification
+├── pmpiv/
+│   ├── pmpiv/                # Library source code
+│   │   ├── annotations.py    # COCO annotation I/O and mask conversion
+│   │   ├── df_io.py          # DataFrame CSV read/write helpers
+│   │   ├── filtering.py      # Particle filtering (spatial, static, stub)
+│   │   ├── fstats.py         # Per-frame and sequence statistics
+│   │   ├── helper.py         # Shared utilities (metadata, TIF I/O)
+│   │   ├── image_sequence.py # Image sequence loading and annotated output
+│   │   ├── metadata.py       # Config file parser
+│   │   ├── motion_stats.py   # Displacement and velocity computation
+│   │   └── ploting.py        # Trajectory and velocity profile plots
+│   ├── tests/                # Pytest test suite (107 tests)
+│   ├── pims/                 # Bundled PIMS (external subtree)
+│   └── trackpy/              # Bundled trackpy (external subtree)
+├── studies/
+│   └── template/             # Annotated workflow template
+└── tests/
+    └── test1/                # Integration test with sample data
+```
+
+---
+
+## Usage
+
+Define your experiment parameters in a `.txt` config file and pass its path as a command-line argument to your study script:
+
+```bash
+python3 studies/template/template.py studies/template/template.txt
+```
+
+See `studies/template/` for a fully annotated example.
+
+---
 
 ## Input Parameters
 
-Define your input parameters in a `.txt` file and pass it as the file path as a command line argument. 
+All parameters are specified as `KEY value` (one per line) in a plain-text config file. Comments start with `#`.
 
-```bash
-python3 pmpiv_test.py example/pmpiv_test.txt
+| Parameter | Type | Description |
+|---|---|---|
+| `IN_PATH` | str | Directory containing the input image files. |
+| `WORKING_DIR` | str | Directory for output data, plots, and CSVs. |
+| `IN_FORMAT` | str | Image file extension: `tif`, `tiff`, `TIF`, or `TIFF`. |
+| `PIXELSIZE` | float | Physical size of one pixel in metres (e.g. `1.3e-06`). |
+| `HEIGHT` | float | Channel/capillary height in metres (e.g. `100.0e-06`). |
+| `START_FRAME` | int | Index of the first frame to process. |
+| `END_FRAME` | int | Index of the last frame to process. Set to `0` to use all frames. |
+| `RATE` | int | Frame subsampling rate (e.g. `2` uses every second frame). |
+| `FEATURE_SIZE` | int | Approximate feature diameter in pixels — **must be an odd integer**. |
+| `FEATURE_MIN_SIZE` | int | Minimum integrated brightness (mass) threshold; increase to reject noise. |
+| `FEATURES_ARE_DARK` | bool | Set to `True` if particles are darker than the background. |
+| `FPS` | float | Acquisition frame rate in Hz. |
+| `MAX_PARTICLE_SPEED` | int | Maximum particle displacement between consecutive frames in pixels. Smaller values speed up linking. |
+| `MEMORY` | int | Number of frames a particle may disappear and still be re-linked. |
+| `DURATION` | int | Minimum trajectory length in frames; shorter trajectories are removed as stubs. |
+| `REMOVE_STATIC` | bool | Set to `True` to enable static particle filtering. |
+| `CHECK_STATIC` | int | Minimum total displacement (pixels) for a trajectory to be considered moving. |
+| `STATIC_DEV_PARAMETER` | float | Position standard-deviation threshold (legacy; `CHECK_STATIC` is preferred). |
+| `JSON_PATH` | str | Directory containing COCO annotation `.json` files. |
+| `REMOVAL` | str | Comma-separated list of `.json` annotation files. Particles **inside** these regions are removed. Leave blank for none. |
+| `EXTRACTION` | str | Comma-separated list of `.json` annotation files. Only particles **inside** these regions are kept. Leave blank for none. |
+
+**Example config:**
 ```
-The parameters in the input text file are explained below. For even more details on specific parameters see also the `trackpy` [documentation](https://soft-matter.github.io/trackpy/v0.6.4/).
+IN_PATH       /data/experiment1/images
+WORKING_DIR   /data/experiment1/results
+IN_FORMAT     tif
+PIXELSIZE     1.3e-06
+HEIGHT        100.0e-06
+START_FRAME   0
+END_FRAME     0
+RATE          1
+FEATURE_SIZE  11
+FEATURE_MIN_SIZE 500
+FEATURES_ARE_DARK True
+FPS           70.0
+MAX_PARTICLE_SPEED 4
+MEMORY        6
+DURATION      5
+REMOVE_STATIC True
+CHECK_STATIC  50
+STATIC_DEV_PARAMETER 1.0
+JSON_PATH     /data/experiment1/annotations
+REMOVAL
+EXTRACTION    capillary.json
+```
 
-| **Parameter** 		| **Type** | **Description**                   |
-|-----------------------|----------|------------------------------------|
-| IN_PATH            	| str      | Folder where the input data can be found. 	|
-| WORKING_DIR         	| str      | Folder to store data and save images and output in. 	|
-| IN_FORMAT           	| str      | File format of the images see also documentation of [pims](https://soft-matter.github.io/pims/v0.6.1/) for more information. 	|
-| PIXELSIZE         	| float    | Size of pixel in meter. 	|
-| HEIGHT        		| float    | Height of the model in meter.	|
-| START_FRAME        	| int      | First frame of the image sequence to be used.	|
-| END_FRAME        		| int      | Last frame of the image sequence to be used. If 0 than use the whole image sequence.	|
-| RATE               	| int      | If every second frame should be used -> 2. 	|
-| FEATURE_SIZE       	| int      | Estimate the size of the features in pixels, must be ODD integer. 	|
-| FEATURE_MIN_SIZE      | int      | Threshold parameter in pixels, must be odd integer. If image is especially noisy. 	|
-| FEATURES_ARE_DARK   	| bool     | If features in images are dark, set to true. 	|
-| FPS               	| float    | Frames per second [1/s]. 	|
-| MAX_PARTICLE_SPEED   	| int      | Maximum displacement, the farthest a particle can travel between frames.  We should choose the smallest reasonable value because a large value slows computation time considerably. 	|
-| MEMORY            	| int      | There is the possibility that a particle might be missed for a few frames and then seen again. Memory keeps track of disappeared particles and maintains their ID for up to some number of frames after their last appearance.|
-| DURATION          	| int      | Remove ephemeral trajectories that last shorter than DURATION frames. |
-| JSON_PATH            	| str      | Folder where the json files with COCO annotations can be found. 	|
-| REMOVAL            | str      | Comma seperated list of strings. json files with annotations to delete particles within these regions. 	|
-| EXTRACTION             | str      | Comma seperated list of strings. json files with annotations to select particles within these regions. 	|
+---
 
+## Typical Workflow
 
+1. **Load image sequence** — reads all frames from `IN_PATH` using PIMS.
+2. **Compute sequence statistics** — locates features in each frame and computes per-frame statistics (mass, size, eccentricity). Results are cached in `seq_stats.json`.
+3. **Batch feature detection** — locates Gaussian-like blobs in all frames with `trackpy.batch`.
+4. **(Optional) Percentile filtering** — removes features with extreme mass, size, or eccentricity values.
+5. **Link trajectories** — connects per-frame detections into particle tracks using the Crocker–Grier algorithm (`trackpy.link`).
+6. **Remove stub trajectories** — discards trajectories shorter than `DURATION` frames.
+7. **Region-based removal** — removes particles located inside annotated solid structures (COCO JSON via `REMOVAL`).
+8. **Region-based extraction** — retains only particles inside regions of interest (COCO JSON via `EXTRACTION`).
+9. **Remove static particles** — discards trajectories with total displacement below `CHECK_STATIC`.
+10. **Compute velocity statistics** — calculates mean displacement and velocity per frame and over the full sequence.
+11. **Export results** — saves trajectory DataFrames as semicolon-separated CSVs and produces trajectory/velocity plots.
 
-
-## Program Flow 
-
-1. Define Input parameters
-2. Compute Sequence statistics: locates all features in some frame and computes stats such as size, eccentricity
-3. Compute histograms for relevant feature charcteristics
-4. Locate Gaussian-like blobs and store all info for all frames in DF
-5. Percentile filtering (optional), e.g. remove all features with mass in top or lowest 3% of masses
-6. Link particles with Crocker-Grier linking algorithm. Compute trajectories.
-7. Remove spurious trajectories with a duration < given threshold.
-8. Create Annotations for solid structures.
-9. Read Annotation and remove 
-10. Vice versa annotations can be used to extract subsets. 
-11. Compute area, volume and average particle velocity for subsets. 
-13. Compute particle density per subset.
-
+---
 
 ## Annotations
 
-To annotate areas of interest or to neglect and export the data as `.json` files one may use the [Image-Annotator](https://github.com/bnsreenu/digitalsreeni-image-annotator). If other tools are used, the class `Annotation_Filtering` (in `src/filtering.py`) may have to be adapted. 
+Regions of interest (e.g. capillary lumen, solid walls) are annotated as COCO-format polygons in `.json` files.
 
-Use the annotator as follows:
+**Recommended annotation tool:** [digitalsreeni-image-annotator](https://github.com/bnsreenu/digitalsreeni-image-annotator)
+
 ```bash
 conda activate image_anno
 digitalsreeni-image-annotator
 ```
-An overview of the necessary `conda` packages for the annotation tool can be found on the github page linked above or the bash script.
 
-## Features 
+After annotation, export as COCO JSON and place the files in the directory specified by `JSON_PATH`. List them under `REMOVAL` or `EXTRACTION` in your config file as appropriate.
 
-#### Remove or Extract annotated regions
-List the `.json` files with annotations in the input file. 
+---
 
+## Running the Tests
+
+The test suite requires `pytest` and the project dependencies to be installed.
+
+```bash
+cd pmpiv/pmpiv
+PYTHONPATH=pmpiv:pims:trackpy MPLBACKEND=Agg pytest pmpiv/tests/ -v
+```
+
+Or, from inside `pmpiv/pmpiv/pmpiv/`:
+
+```bash
+PYTHONPATH=.:../pims:../trackpy MPLBACKEND=Agg pytest tests/
+```
+
+---
 
 ## Acknowledgements
-Funded by Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy (Project number 390740016 - EXC 2075 and the Collaborative Research Center 1313 (project number 327154368 - SFB1313). We acknowledge the support by the Stuttgart Center for Simulation Science (SimTech).
+
+Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany's Excellence Strategy (Project number 390740016 – EXC 2075) and the Collaborative Research Center 1313 (Project number 327154368 – SFB 1313). Support by the Stuttgart Center for Simulation Science (SimTech) is gratefully acknowledged.
+
+---
 
 ## Developer
-- [David Krach](https://www.mib.uni-stuttgart.de/institute/team/Krach/) E-mail: [david.krach@mib.uni-stuttgart.de](mailto:david.krach@mib.uni-stuttgart.de)
 
+[David Krach](https://www.mib.uni-stuttgart.de/institute/team/Krach/) — [david.krach@mib.uni-stuttgart.de](mailto:david.krach@mib.uni-stuttgart.de)
 
 ## Contact
-- [Software Support Institute of Applied Mechanics](mailto:software@mib.uni-stuttgart.de)
-- [Data Support Institute of Applied Mechanics](mailto:data@mib.uni-stuttgart.de)
+
+- Software support: [software@mib.uni-stuttgart.de](mailto:software@mib.uni-stuttgart.de)
+- Data support: [data@mib.uni-stuttgart.de](mailto:data@mib.uni-stuttgart.de)
