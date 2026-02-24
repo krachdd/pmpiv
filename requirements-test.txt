@@ -9,3 +9,4 @@ pycocotools
 slicerator
 looseversion
 opencv-python-headless
+PyYAML
