@@ -24,17 +24,17 @@ import trackpy as tp    # https://soft-matter.github.io/trackpy/v0.6.1/index.htm
 def _folder_sanity(m_folder):
     """
     """
-    
+
     if not os.path.isdir(m_folder):
-        FileNotFoundError(f'Folder {m_folder} does not exist!')
+        raise FileNotFoundError(f'Folder {m_folder} does not exist!')
 
 
 def _file_sanity(m_infile):
     """
     """
-    
+
     if not os.path.exists(m_infile):
-        FileNotFoundError(f'File {m_infile} does not exist!')
+        raise FileNotFoundError(f'File {m_infile} does not exist!')
 
 
 

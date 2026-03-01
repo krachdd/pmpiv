@@ -24,7 +24,6 @@ import trackpy as tp        # https://soft-matter.github.io/trackpy/v0.6.1/index
 import pims                 # https://soft-matter.github.io/pims/v0.6.1/
 import pmpiv as pmpiv
 
-
 ###--------------------------------------------------------------------------------
 
 # GET USER DEFINED PARAMS 
@@ -55,17 +54,36 @@ sq_stats = _sq_stats.get()
 # Locate Gaussian-like blobs of some approximate size in the set of images
 # This takes place fully parallel
 #tp.quiet()  # Turn off progress reports for best performance
-df_all = tp.batch(frames, md.FEATURE_SIZE, minmass=md.FEATURE_MIN_SIZE, invert = md.FEATURES_ARE_DARK)
+_batch_cache = f'{md.WORKING_DIR}/df_batch.pkl'
+if os.path.isfile(_batch_cache):
+    print(f'Loading cached batch results from {_batch_cache}')
+    df_all = pd.read_pickle(_batch_cache)
+else:
+    df_all = tp.batch(frames, md.FEATURE_SIZE, minmass=md.FEATURE_MIN_SIZE, invert = md.FEATURES_ARE_DARK)
+    df_all.to_pickle(_batch_cache)
+    print(f'Saved batch results to {_batch_cache}')
 
-# Linking particle positions 
+# Linking particle positions
 # sequential computation
-df_filtered_linked = tp.link(df_all, md.MAX_PARTICLE_SPEED, memory = md.MEMORY)
-
-# Remove spurious trajectories
-df_filtered_sp = tp.filter_stubs(df_filtered_linked, md.DURATION)
+_link_cache = f'{md.WORKING_DIR}/df_linked.pkl'
+if os.path.isfile(_link_cache):
+    print(f'Loading cached linked results from {_link_cache}')
+    df_filtered_sp = pd.read_pickle(_link_cache)
+else:
+    df_filtered_linked = tp.link(df_all, md.MAX_PARTICLE_SPEED, memory = md.MEMORY)
+    # Remove spurious trajectories
+    df_filtered_sp = tp.filter_stubs(df_filtered_linked, md.DURATION)
+    df_filtered_sp.to_pickle(_link_cache)
+    print(f'Saved linked results to {_link_cache}')
 
 # Save all trajectory data in a copy
 df_all = df_filtered_sp.copy(deep=True)
+
+# Plot all detected trajectories (full frame, no annotation region filter)
+pmpiv.df_io.write2csv(df_all, md.WORKING_DIR, 'df_all_short.csv')
+image_sequence.plot_annotated_tiffs(df_all, f'{md.WORKING_DIR}/tiffs_all')
+
+
 dfs = {}
 
 for s in range(len(md.EXTRACTION)):
@@ -74,18 +92,12 @@ for s in range(len(md.EXTRACTION)):
     print(f'Extracted Area: {filtered_area}')
 
     filter_selection_df   = selection_ann_handler.annotations2DF()
-    selection_ann_filter  = pmpiv.filtering.Annotation_Filtering(df_all.copy(deep = True), filter_selection_df)
-    df_filtered           = selection_ann_filter.extract()
+    selection_ann_filter  = pmpiv.filtering.Annotation_Filtering(df_all.copy(deep = True), m_metadata = md)
+    df_filtered           = selection_ann_filter.extract(filter_selection_df)
 
     key = md.EXTRACTION[s].replace('.json', '')
-    df_save = df_filtered.copy(deep = True)
-    df_filter_static = df_filtered.copy(deep = True)
     # dfs[key] = df_save
 
     pmpiv.df_io.write2csv(df_filtered, md.WORKING_DIR, f'df_{key}_short.csv')
 
-
-    # Remove static trajectories--------------------------------------------------------------------
-    df_filter_static = pmpiv.filtering.filter_static(df_filter_static, m_metadata = md)
-
-    pmpiv.df_io.write2csv(df_filter_static, md.WORKING_DIR, f'df_{key}_fstatic_short.csv')
+    image_sequence.plot_annotated_tiffs(df_filtered, f'{md.WORKING_DIR}/tiffs_{key}')

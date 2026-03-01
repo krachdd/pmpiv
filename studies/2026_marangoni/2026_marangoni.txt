@@ -1,0 +1,34 @@
+# Input file for pythonPIV
+#
+# Provide the path to this file to the python code
+
+# data 
+IN_PATH /home/david/Arbeit/data/piv/marangoni/test1_050Ethanol/
+WORKING_DIR /home/david/Arbeit/data/piv/marangoni/results
+IN_FORMAT tif
+PIXELSIZE 2.0e-06
+HEIGHT 100.0e-06
+
+# input data to use
+START_FRAME 0
+END_FRAME 600
+RATE 1
+
+# Dependend on the experiment/particles
+FEATURE_SIZE 9
+FEATURE_MIN_SIZE 400
+FEATURES_ARE_DARK True
+FPS 70
+
+# Trial and error stuff ;) 
+MAX_PARTICLE_SPEED 4
+MEMORY 6
+DURATION 5
+REMOVE_STATIC True
+CHECK_STATIC 100
+STATIC_DEV_PARAMETER 1.0
+
+# Annotations 
+JSON_PATH /scratch/local1/data/00_processing/PMPIV/pmpiv/pmpiv/studies/2026_marangoni/annotations
+REMOVAL 
+EXTRACTION 

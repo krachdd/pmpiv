@@ -122,7 +122,7 @@ class Image_Sequence:
         # get all frames from df_annotations
         out_frames = list(np.unique(np.asarray(df_annotations['frame'])))
 
-        os.system(f'mkdir -p {outfolder}')
+        os.makedirs(outfolder, exist_ok=True)
         if self.verbose: print(f'Create folder if not existing: {outfolder}')
 
         for myf in out_frames:
@@ -151,7 +151,7 @@ class Image_Sequence:
         # get all frames from df_annotations
         out_frames = list(np.unique(np.asarray(df_annotations['frame'])))
 
-        os.system(f'mkdir -p {outfolder}')
+        os.makedirs(outfolder, exist_ok=True)
         if self.verbose: print(f'Create folder if not existing: {outfolder}')
 
         for myf in out_frames:
@@ -207,7 +207,7 @@ class Image_Sequence:
         # get all frames from df_annotations
         out_frames = list(np.unique(np.asarray(df_annotations['frame'])))
 
-        os.system(f'mkdir -p {outfolder}')
+        os.makedirs(outfolder, exist_ok=True)
         if self.verbose: print(f'Create folder if not existing: {outfolder}')
 
         ncpus = int(0.5 * multiprocessing.cpu_count())
@@ -249,7 +249,7 @@ class Image_Sequence:
             raise ValueError('Frames must be same!')
 
         if self.verbose: print(f'Create folder if not existing: {outfolder}')
-        os.system(f'mkdir -p {outfolder}')
+        os.makedirs(outfolder, exist_ok=True)
 
         for myf in out_frames:
             if self.verbose:
@@ -324,7 +324,7 @@ class Image_Sequence:
             raise ValueError('Frames must be same!')
 
         if self.verbose: print(f'Create folder if not existing: {outfolder}')
-        os.system(f'mkdir -p {outfolder}')
+        os.makedirs(outfolder, exist_ok=True)
 
         ncpus = int(0.5 * multiprocessing.cpu_count())
 
@@ -353,9 +353,7 @@ class Image_Sequence:
         """
         if self._plot_parallel:
             warnings.warn('Parallel png dump not implemented, using sequential dump.', UserWarning)
-            self._output_annotated_pngs(df_annotations, outfolder, color = color, dpi = 100)
-        else:
-            self._output_annotated_pngs(df_annotations, outfolder, color = color, dpi = 100)
+        self._output_annotated_pngs(df_annotations, outfolder, color = color, dpi = dpi)
 
 
 

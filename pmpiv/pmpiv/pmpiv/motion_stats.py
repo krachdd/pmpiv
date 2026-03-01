@@ -164,9 +164,9 @@ class Motion_Statistics:
             dr.append(_rdict['dr'])
 
 
-        rdict['dx'] = np.mean(np.abs(np.asarray(dx)))
-        rdict['dy'] = np.mean(np.abs(np.asarray(dy)))
-        rdict['dr'] = np.mean(np.abs(np.asarray(dr)))
+        rdict['dx'] = np.mean(np.asarray(dx))
+        rdict['dy'] = np.mean(np.asarray(dy))
+        rdict['dr'] = np.mean(np.asarray(dr))
 
         return rdict
 

@@ -84,7 +84,7 @@ class Annotation_Handler:
         anns_ids = coco.getAnnIds(imgIds=img['id'], catIds=cat_ids, iscrowd=None)
         anns = coco.loadAnns(anns_ids)
 
-        mask = coco.annToMask(anns[0])
+        mask = np.zeros_like(coco.annToMask(anns[0]))
 
         for i in range(len(anns)):
             mask += coco.annToMask(anns[i])
@@ -144,17 +144,17 @@ class Annotation_Handler:
 
         m_area *= (self.m_metadata.PIXELSIZE * self.m_metadata.PIXELSIZE)
 
-        self.area = m_area
+        self._area = m_area
 
-        return self.area
+        return self._area
 
-    
+
     def volume(self):
         """
         returns combined volume of all annotations in json file in [m^3].
         """
-        self.volume = self.area() * self.md.HEIGHT
-        return self.volume
+        self._volume = self.area() * self.m_metadata.HEIGHT
+        return self._volume
 
 
 class Annotation_Reader:

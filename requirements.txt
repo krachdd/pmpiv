@@ -1,0 +1,12 @@
+numpy
+pandas
+matplotlib
+scipy
+Pillow
+imageio
+opencv-python-headless
+pycocotools
+slicerator
+looseversion
+PyYAML
+pytest
