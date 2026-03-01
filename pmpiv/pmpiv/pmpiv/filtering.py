@@ -452,7 +452,7 @@ def filter_static(init_df,
     
     # Check if the change in position over the whole sequence is bigger than 
     # CHECK_STATIC (given in pixels, not meter)
-    filtered = grouped.filter(lambda f: (f.x.max() - f.x.min()) >= m_metadata.CHECK_STATIC and 
+    filtered = grouped.filter(lambda f: (f.x.max() - f.x.min()) >= m_metadata.CHECK_STATIC or
                                         (f.y.max() - f.y.min()) >= m_metadata.CHECK_STATIC     )
     
     df_filtered = filtered.set_index('frame', drop=False)
