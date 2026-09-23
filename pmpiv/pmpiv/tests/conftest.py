@@ -98,6 +98,69 @@ def _make_trajectory_df(
     return df
 
 
+def _arc_y(x, cx, cy, r):
+    """Lower-branch y of a circle for the given x (NaN outside the circle)."""
+    dx = np.asarray(x, dtype=float) - cx
+    y = np.full(dx.shape, np.nan)
+    inside = np.abs(dx) <= r
+    y[inside] = cy + np.sqrt(r ** 2 - dx[inside] ** 2)
+    return y
+
+
+def _synthetic_channel_image(
+    shape=(600, 800),
+    walls=((100, 112), (400, 412), (700, 712)),
+    arcs=({"cx": 556, "cy": 150, "r": 200, "thickness": 20},),
+    beads_in=(1,),
+    top_wall_y=None,
+    noise=3.0,
+    seed=0,
+    n_beads=150,
+    wall_y_from=0,
+):
+    """Bright-field-like uint8 image: dark vertical walls (from row
+    wall_y_from down), dark circular-cap menisci pinned in the channel gaps,
+    tracer beads below the arcs."""
+    import cv2
+
+    rng = np.random.default_rng(seed)
+    H, W = shape
+    img = np.full(shape, 200.0)
+    for x0, x1 in walls:
+        img[wall_y_from:, x0:x1] = 40.0
+    if top_wall_y is not None:
+        img[top_wall_y:top_wall_y + 12, :] = 40.0
+
+    gaps = [(walls[i][1], walls[i + 1][0]) for i in range(len(walls) - 1)]
+    yy = np.arange(H)[:, None]
+    xx = np.arange(W)[None, :]
+
+    for arc in arcs:
+        mask = np.zeros(shape, dtype=np.uint8)
+        cv2.circle(mask, (int(arc["cx"]), int(arc["cy"])), int(arc["r"]), 255,
+                   thickness=int(arc["thickness"]))
+        span = next((g for g in gaps if g[0] <= arc["cx"] <= g[1]), (0, W))
+        keep = (mask > 0) & (yy > arc["cy"]) & (xx >= span[0]) & (xx < span[1])
+        img[keep] = 40.0
+
+    bead_mask = np.zeros(shape, dtype=np.uint8)
+    for gi in beads_in:
+        x0, x1 = gaps[gi]
+        arc = next((a for a in arcs if x0 <= a["cx"] <= x1), None)
+        for _ in range(n_beads):
+            bx = int(rng.integers(x0 + 5, x1 - 5))
+            by = int(rng.integers(5, H - 5))
+            if arc is not None:
+                ay = _arc_y(bx, arc["cx"], arc["cy"], arc["r"])
+                if np.isnan(ay) or by < ay + arc["thickness"]:
+                    continue
+            cv2.circle(bead_mask, (bx, by), 3, 255, -1)
+    img[bead_mask > 0] = 60.0
+
+    img += rng.normal(0, noise, shape)
+    return np.clip(img, 0, 255).astype(np.uint8)
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

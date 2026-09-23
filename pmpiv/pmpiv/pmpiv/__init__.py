@@ -14,6 +14,10 @@ from pmpiv.filtering         import *
 from pmpiv.fstats            import (Frame_Statistics, Sequence_Statistics)
 from pmpiv.helper            import *
 from pmpiv.image_sequence    import (Image_Sequence)
+from pmpiv.interface         import (Interface_Tracking, Multi_Interface_Tracking)
+from pmpiv.interface_discovery import (discover_interfaces, find_channel_walls, find_menisci_hough)
+from pmpiv.interface_flow    import *
 from pmpiv.metadata          import (Metadata)
 from pmpiv.motion_stats      import (Motion_Statistics)
 from pmpiv.ploting           import *
+from pmpiv.report            import (build_latex_report)

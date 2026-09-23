@@ -100,10 +100,9 @@ class Image_Sequence:
         if not self._is_read:
             self._read()
 
-        # if END_FRAME == 0 return entire image sequence
-        if self.m_metadata.END_FRAME != 0:
-            self.image_sequence = self.image_sequence[self.m_metadata.START_FRAME:self.m_metadata.END_FRAME]
-        
+        # if END_FRAME == 0 use the full length of the sequence as the end
+        end = self.m_metadata.END_FRAME if self.m_metadata.END_FRAME != 0 else len(self.image_sequence)
+        self.image_sequence = self.image_sequence[self.m_metadata.START_FRAME:end]
 
         return self.image_sequence
 
